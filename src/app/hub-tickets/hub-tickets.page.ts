@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-hub-tickets',
@@ -16,13 +17,13 @@ export class HubTicketsPage {
     { nombre: 'Obra B', tipos: [{ nombre: 'VIP', precio: 120 }, { nombre: 'Preferencial', precio: 90 }, { nombre: 'General', precio: 60 }] },
   ];
 
-  eventoSeleccionado: any = null;
+  eventosSeleccionados: any[] = [];
+  eventoTemporal: any = null;
   cantidadEntradas: number = 1;
   total: number = 0;
-  precioOriginal: number = 0;
-  descuentoAplicado: number = 0;
+  descuentosAplicados: number[] = [];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private alertController: AlertController) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.name = navigation.extras.state['name'];
@@ -32,18 +33,52 @@ export class HubTicketsPage {
   }
 
   seleccionarEvento(evento: any) {
-    this.eventoSeleccionado = evento;
-    this.precioOriginal = evento.tipos[0].precio;
+    this.eventoTemporal = {
+      evento: evento,
+      cantidadEntradas: 1,
+      tipoSeleccionado: evento.tipos[0],
+      precioOriginal: evento.tipos[0].precio,
+    };
+  }
+
+  agregarEvento() {
+    if (this.eventoTemporal) {
+      this.eventosSeleccionados.push({ ...this.eventoTemporal });
+      this.eventoTemporal = null;
+    }
+  }
+
+  calcularDescuento(precio: number): number {
+    if (this.age < 18) {
+      return precio * 0.1;
+    } else if (this.age > 60) {
+      return precio * 0.2;
+    }
+    return 0;
   }
 
   calcularTotal() {
-    let descuento = 0;
-    if (this.age < 18) {
-      descuento = this.precioOriginal * 0.1;
-    } else if (this.age > 60) {
-      descuento = this.precioOriginal * 0.2;
-    }
-    this.descuentoAplicado = descuento;
-    this.total = (this.precioOriginal - descuento) * this.cantidadEntradas;
+    this.total = 0;
+    this.descuentosAplicados = [];
+
+    this.eventosSeleccionados.forEach((seleccion, index) => {
+      let descuento = this.calcularDescuento(seleccion.tipoSeleccionado.precio);
+      this.descuentosAplicados[index] = descuento;
+      let totalPorEvento = (seleccion.tipoSeleccionado.precio - descuento) * seleccion.cantidadEntradas;
+      this.total += totalPorEvento;
+    });
+  }
+
+  async comprarBoletos() {
+    const alert = await this.alertController.create({
+      header: 'Compra exitosa',
+      message: 'Boletos agregados al carrito',
+      buttons: ['OK']
+    });
+    await alert.present();
+
+    this.eventosSeleccionados = [];
+    this.total = 0;
+    this.descuentosAplicados = [];
   }
 }

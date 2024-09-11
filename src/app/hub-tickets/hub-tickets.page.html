@@ -20,37 +20,56 @@
     </ion-item>
   </ion-list>
 
-  <ion-card *ngIf="eventoSeleccionado">
+  <ion-card *ngIf="eventoTemporal">
     <ion-card-header>
-      <ion-card-title>{{ eventoSeleccionado.nombre }}</ion-card-title>
+      <ion-card-title>{{ eventoTemporal.evento.nombre }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <div>
         <label>Cantidad de Entradas:</label>
-        <input type="number" [(ngModel)]="cantidadEntradas" min="1" />
+        <input type="number" [(ngModel)]="eventoTemporal.cantidadEntradas" min="1" />
       </div>
       <div>
         <label>Tipo de Entrada:</label>
-        <ion-select (ionChange)="precioOriginal = $event.detail.value.precio">
-          <ion-select-option *ngFor="let tipo of eventoSeleccionado.tipos" [value]="tipo">
+        <ion-select [(ngModel)]="eventoTemporal.tipoSeleccionado" (ionChange)="eventoTemporal.precioOriginal = eventoTemporal.tipoSeleccionado.precio">
+          <ion-select-option *ngFor="let tipo of eventoTemporal.evento.tipos" [value]="tipo">
             {{ tipo.nombre }} - ${{ tipo.precio }}
           </ion-select-option>
         </ion-select>
       </div>
-      <ion-button expand="full" (click)="calcularTotal()">Calcular Total</ion-button>
+      <ion-button expand="full" (click)="agregarEvento()">Agregar</ion-button>
     </ion-card-content>
   </ion-card>
+
+  <div *ngFor="let seleccion of eventosSeleccionados; let i = index">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ seleccion.evento.nombre }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Tipo de Entrada: {{ seleccion.tipoSeleccionado.nombre }}</p>
+        <p>Cantidad de Entradas: {{ seleccion.cantidadEntradas }}</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <ion-button expand="full" (click)="calcularTotal()">Calcular Total</ion-button>
 
   <ion-card *ngIf="total > 0">
     <ion-card-header>
       <ion-card-title>Resumen de Compra</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>Precio Original: ${{ precioOriginal }}</p>
-      <p>Descuento Aplicado: ${{ descuentoAplicado }}</p>
-      <p>Total: ${{ total }}</p>
+      <div *ngFor="let seleccion of eventosSeleccionados; let i = index">
+        <p>{{ seleccion.evento.nombre }} - {{ seleccion.tipoSeleccionado.nombre }}: {{ seleccion.cantidadEntradas }} entradas</p>
+        <p>Precio Original: ${{ seleccion.precioOriginal }}</p>
+        <p>Descuento Aplicado: ${{ descuentosAplicados[i] }}</p>
+      </div>
+      <p>Total a Pagar: ${{ total }}</p>
     </ion-card-content>
   </ion-card>
+
+  <ion-button expand="full" *ngIf="total > 0" (click)="comprarBoletos()">Comprar</ion-button>
 </ion-content>
 
 <ion-footer>
