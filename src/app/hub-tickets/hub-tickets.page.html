@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Eventos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div>
+    <p><strong>Nombre:</strong> {{ name }}</p>
+    <p><strong>Apellido:</strong> {{ lastname }}</p>
+    <p><strong>Edad:</strong> {{ age }}</p>
+  </div>
+
+  <ion-list>
+    <ion-item *ngFor="let evento of eventos" (click)="seleccionarEvento(evento)">
+      {{ evento.nombre }}
+    </ion-item>
+  </ion-list>
+
+  <ion-card *ngIf="eventoSeleccionado">
+    <ion-card-header>
+      <ion-card-title>{{ eventoSeleccionado.nombre }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div>
+        <label>Cantidad de Entradas:</label>
+        <input type="number" [(ngModel)]="cantidadEntradas" min="1" />
+      </div>
+      <div>
+        <label>Tipo de Entrada:</label>
+        <ion-select (ionChange)="precioOriginal = $event.detail.value.precio">
+          <ion-select-option *ngFor="let tipo of eventoSeleccionado.tipos" [value]="tipo">
+            {{ tipo.nombre }} - ${{ tipo.precio }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+      <ion-button expand="full" (click)="calcularTotal()">Calcular Total</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="total > 0">
+    <ion-card-header>
+      <ion-card-title>Resumen de Compra</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Precio Original: ${{ precioOriginal }}</p>
+      <p>Descuento Aplicado: ${{ descuentoAplicado }}</p>
+      <p>Total: ${{ total }}</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <p class="footer-text">© 2024 BLUE-TICKET. Todos los derechos reservados.</p>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,7 @@
+{
+  "name": "Blue-ticket",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
